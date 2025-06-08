@@ -1,0 +1,49 @@
+#include <8051.h>
+
+void tput (unsigned char ch)
+{
+	SBUF = ch;
+	while(!TI);
+	TI = 0;
+}
+
+unsigned char getChar()
+{
+	unsigned char ch;
+	while(!RI);
+	ch = SBUF;
+	tput(ch);
+	RI = 0;
+	return ch;
+}
+
+void main()
+{
+	char idata *ptr;		
+	char chRecieved;		
+	unsigned char i;		
+	unsigned char index;	
+
+	ptr = (char idata*) 0x30;
+	
+	PCON = 0b00000000;	// 187,5 kHz
+	SCON = 0b10011100;	
+	TMOD = 0b00100000;	// rejim 2
+
+	TR1 = 1;			
+	
+	RI = 0;				
+	
+	tput('\n');
+	tput('r');
+	tput(':');
+	tput('\n');
+
+	for (i = 0; i < 20; i++)
+	{
+		*(ptr + index) = getChar();	
+		index++;
+		
+	}
+	while(1) {}
+}

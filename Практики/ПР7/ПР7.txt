@@ -1,0 +1,57 @@
+#include <htc.h>
+
+#define tmpCnt 4000
+
+void main()
+{
+	int lvlSHIM;
+	int cnt;
+	
+	lvlSHIM = 5;
+	P04 = 0; 	
+
+	P1 = 0xFE;
+	RCAP2H = 0b00000101;	
+	RCAP2L = 0b01011001;	
+	T2CON &= 0xFC;
+	ET2 = 1;
+	EA = 1;
+	T2CON |= 0x4;
+	while (1) 
+	{
+		cnt = tmpCnt/lvlSHIM;
+		
+		while (TF2 == 0) 
+		{
+			if (P00 != 1)
+			{
+				if (lvlSHIM > 2 && !P04) { lvlSHIM--; P04 = 1; }
+			}
+
+			if (P07 != 1)
+			{
+				if (lvlSHIM < 5 && !P04) { lvlSHIM++; P04 = 1; }
+			}
+		}
+
+		TF2 = 0;
+		P10 = 1;
+
+		while (cnt != 0) 
+		{
+			cnt--;
+			if (P00 != 1)
+			{
+				if (lvlSHIM > 2 && !P04) { lvlSHIM--; P04 = 1; }
+			}
+
+			if (P07 != 1)
+			{
+				if (lvlSHIM < 5 && !P04) { lvlSHIM++; P04 = 1; }
+			} 
+		}
+		P04 = 0;
+		P10 = 0;
+		cnt = tmpCnt - tmpCnt*(10 - lvlSHIM); 
+	}
+}
